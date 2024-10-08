@@ -1,55 +1,47 @@
 #include <iostream>
-#include <fstream>
+#include <cstdlib>
+#include <ctime>
+#include <windows.h> 
 
-// 関数: 一般的な賃金体系の総賃金を計算する
-double calculateRegularWage(int hours) {
-    const double regularHourlyWage = 1072.0;  // 一般的な賃金体系の時給
-    return hours * regularHourlyWage;
+typedef void (*PFunc)(int *);
+
+
+void checkResult(int *guess) {
+    int diceResult = rand() % 6 + 1; 
+    std::cout << "サイコロの目は " << diceResult << " です。" << std::endl;
+
+    bool isEven = (diceResult % 2 == 0);
+    bool userGuessedEven = (*guess == 2);
+
+    if ((isEven && userGuessedEven) || (!isEven && !userGuessedEven)) {
+        std::cout << "正解！" << std::endl;
+    } else {
+        std::cout << "不正解..." << std::endl;
+    }
 }
 
-// 関数: 再帰的な賃金体系の総賃金を計算する
-double calculateRecursiveWage(int hours) {
-    double wage = 0.0;
-    double previousHourlyWage = 100.0;  // 再帰的な賃金体系の最初の1時間の賃金は100円
+void setTimeout(PFunc p, int guess) {
+    std::cout << "3秒待って...\n";
+    Sleep(3000);
 
-    for (int i = 1; i <= hours; ++i) {
-        wage += previousHourlyWage;
-        previousHourlyWage = previousHourlyWage * 2 - 50;  // 次の1時間の賃金の計算式
-    }
-
-    return wage;
+    p(&guess);
 }
 
 int main() {
-    int hours = 0;
+    srand(static_cast<unsigned int>(time(0)));
 
-    // 作業時間を入力
-    std::cout << "作業時間（時間単位）を入力してください：";
-    std::cin >> hours;
+    int userGuess;
+    std::cout << "奇数か偶数か当ててください (1: 奇数, 2: 偶数): ";
+    std::cin >> userGuess;
 
-    // 2つの賃金体系の総賃金を計算
-    double regularTotalWage = calculateRegularWage(hours);
-    double recursiveTotalWage = calculateRecursiveWage(hours);
-
-    // 結果を出力
-    std::cout << "一般的な賃金体系の総賃金: " << regularTotalWage << " 円" << std::endl;
-    std::cout << "再帰的な賃金体系の総賃金: " << recursiveTotalWage << " 円" << std::endl;
-
-    // どちらが有利か比較
-    if (recursiveTotalWage > regularTotalWage) {
-        std::cout << hours << "時間後、再帰的な賃金体系の方が有利です。" << std::endl;
-    } else {
-        std::cout << hours << "時間後、一般的な賃金体系の方が有利です。" << std::endl;
+    if (userGuess != 1 && userGuess != 2) {
+        std::cout << "無効な入力です。1（奇数）か2（偶数）を入力してください。" << std::endl;
+        return 1;
     }
 
-    // 結果を answer.md ファイルに書き込む
-    std::ofstream answerFile("answer.md");
-    if (recursiveTotalWage > regularTotalWage) {
-        answerFile << hours << "時間後、再帰的な賃金体系の方が有利です。" << std::endl;
-    } else {
-        answerFile << hours << "時間後、一般的な賃金体系の方が有利です。" << std::endl;
-    }
-    answerFile.close();
+    PFunc callback = checkResult;
+
+    setTimeout(callback, userGuess);
 
     return 0;
 }
