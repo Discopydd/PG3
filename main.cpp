@@ -3,45 +3,47 @@
 #include <ctime>
 #include <windows.h> 
 
-typedef void (*PFunc)(int *);
+typedef void (*Callback)(int *);
 
+void check(int *guess) {
+    int result = rand() % 6 + 1;
+    std::cout << "サイコロの目は " << result << " です。" << std::endl;
 
-void checkResult(int *guess) {
-    int diceResult = rand() % 6 + 1; 
-    std::cout << "サイコロの目は " << diceResult << " です。" << std::endl;
+    bool isEven = (result % 2 == 0);
+    bool guessedEven = (*guess == 2);
 
-    bool isEven = (diceResult % 2 == 0);
-    bool userGuessedEven = (*guess == 2);
-
-    if ((isEven && userGuessedEven) || (!isEven && !userGuessedEven)) {
+    if ((isEven && guessedEven) || (!isEven && !guessedEven)) {
         std::cout << "正解！" << std::endl;
     } else {
         std::cout << "不正解..." << std::endl;
     }
 }
 
-void setTimeout(PFunc p, int guess) {
+void setTimeout(Callback callback, int guess) {
     std::cout << "3秒待って...\n";
-    Sleep(3000);
+    Sleep(3000);  
 
-    p(&guess);
+    callback(&guess);
 }
 
 int main() {
     srand(static_cast<unsigned int>(time(0)));
 
-    int userGuess;
+    int guess;
     std::cout << "奇数か偶数か当ててください (1: 奇数, 2: 偶数): ";
-    std::cin >> userGuess;
+    std::cin >> guess;
 
-    if (userGuess != 1 && userGuess != 2) {
+    if (guess != 1 && guess != 2) {
         std::cout << "無効な入力です。1（奇数）か2（偶数）を入力してください。" << std::endl;
         return 1;
     }
 
-    PFunc callback = checkResult;
+    auto runGame = [&]() {
+        Callback callback = check;
+        setTimeout(callback, guess);
+    };
 
-    setTimeout(callback, userGuess);
+    runGame();
 
     return 0;
 }
