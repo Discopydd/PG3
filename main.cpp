@@ -1,49 +1,76 @@
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
-#include <windows.h> 
+#include <conio.h> 
 
-typedef void (*Callback)(int *);
+using namespace std;
 
-void check(int *guess) {
-    int result = rand() % 6 + 1;
-    std::cout << "サイコロの目は " << result << " です。" << std::endl;
+class Enemy {
+public:
+   
+    typedef void (Enemy::*StateFunc)();
 
-    bool isEven = (result % 2 == 0);
-    bool guessedEven = (*guess == 2);
+    // 静的メンバ関数ポインタテーブル
+    static StateFunc stateTable[];
 
-    if ((isEven && guessedEven) || (!isEven && !guessedEven)) {
-        std::cout << "正解！" << std::endl;
-    } else {
-        std::cout << "不正解..." << std::endl;
+    // コンストラクタ、初期状態インデックスを0（接近状態）に設定
+    Enemy() : stateIndex(0) {}
+
+    // 現在の状態関数を実行
+    void update() {
+        if (stateTable[stateIndex] != nullptr) {
+            (this->*stateTable[stateIndex])();  // 現在の状態関数を呼び出す
+        }
     }
-}
 
-void setTimeout(Callback callback, int guess) {
-    std::cout << "3秒待って...\n";
-    Sleep(3000);  
+private:
+    int stateIndex;  // 現在の状態インデックス
 
-    callback(&guess);
-}
+    // 状態：接近
+    void approach() {
+        cout << "敵が接近しています！" << endl;
+        stateIndex = 1;  
+    }
+
+    // 状態：射撃
+    void shoot() {
+        cout << "敵が射撃しています！" << endl;
+        stateIndex = 2; 
+    }
+
+    // 状態：離脱
+    void retreat() {
+        cout << "敵が離脱しています！" << endl;
+        stateIndex = 0; 
+    }
+};
+
+// 静的メンバ関数ポインタテーブルの初期化
+Enemy::StateFunc Enemy::stateTable[] = {
+    &Enemy::approach,  // インデックス0は接近状態
+    &Enemy::shoot,     // インデックス1は射撃状態
+    &Enemy::retreat,   // インデックス2は離脱状態
+    nullptr            // 終了マーカー（オプション）
+};
 
 int main() {
-    srand(static_cast<unsigned int>(time(0)));
+    Enemy enemy;
 
-    int guess;
-    std::cout << "奇数か偶数か当ててください (1: 奇数, 2: 偶数): ";
-    std::cin >> guess;
+    cout << "任意のキーで状態を更新、'0' キーで終了..." << endl;
 
-    if (guess != 1 && guess != 2) {
-        std::cout << "無効な入力です。1（奇数）か2（偶数）を入力してください。" << std::endl;
-        return 1;
+    while (true) {
+        // キーが押された場合
+        if (_kbhit()) {
+            // 押されたキーを取得
+            char ch = _getch();
+
+            if (ch == '0') {
+                cout << "プログラムを終了します..." << endl;
+                break;
+            }
+
+            // その他のキーが押された場合、状態を更新
+            enemy.update();
+        }
     }
-
-    auto runGame = [&]() {
-        Callback callback = check;
-        setTimeout(callback, guess);
-    };
-
-    runGame();
 
     return 0;
 }
