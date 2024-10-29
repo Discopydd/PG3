@@ -1,76 +1,39 @@
 #include <iostream>
-#include <conio.h> 
 
-using namespace std;
-
-class Enemy {
+// クラステンプレートの定義
+template <typename T>
+class MinClass {
 public:
-   
-    typedef void (Enemy::*StateFunc)();
-
-    // 静的メンバ関数ポインタテーブル
-    static StateFunc stateTable[];
-
-    // コンストラクタ、初期状態インデックスを0（接近状態）に設定
-    Enemy() : stateIndex(0) {}
-
-    // 現在の状態関数を実行
-    void update() {
-        if (stateTable[stateIndex] != nullptr) {
-            (this->*stateTable[stateIndex])();  // 現在の状態関数を呼び出す
-        }
+    // 2つの引数の小さい方を返すメンバ関数
+    T Min(T a, T b) {
+        return (a < b) ? a : b;
     }
-
-private:
-    int stateIndex;  // 現在の状態インデックス
-
-    // 状態：接近
-    void approach() {
-        cout << "敵が接近しています！" << endl;
-        stateIndex = 1;  
-    }
-
-    // 状態：射撃
-    void shoot() {
-        cout << "敵が射撃しています！" << endl;
-        stateIndex = 2; 
-    }
-
-    // 状態：離脱
-    void retreat() {
-        cout << "敵が離脱しています！" << endl;
-        stateIndex = 0; 
-    }
-};
-
-// 静的メンバ関数ポインタテーブルの初期化
-Enemy::StateFunc Enemy::stateTable[] = {
-    &Enemy::approach,  // インデックス0は接近状態
-    &Enemy::shoot,     // インデックス1は射撃状態
-    &Enemy::retreat,   // インデックス2は離脱状態
-    nullptr            // 終了マーカー（オプション）
 };
 
 int main() {
-    Enemy enemy;
+    // int型のインスタンス
+    MinClass<int> intMin;
+    std::cout << "int型: " << intMin.Min(3, 5) << std::endl;
 
-    cout << "任意のキーで状態を更新、'0' キーで終了..." << endl;
+    // float型のインスタンス
+    MinClass<float> floatMin;
+    std::cout << "float型: " << floatMin.Min(2.5f, 1.5f) << std::endl;
 
-    while (true) {
-        // キーが押された場合
-        if (_kbhit()) {
-            // 押されたキーを取得
-            char ch = _getch();
+    // double型のインスタンス
+    MinClass<double> doubleMin;
+    std::cout << "double型: " << doubleMin.Min(7.1, 3.9) << std::endl;
 
-            if (ch == '0') {
-                cout << "プログラムを終了します..." << endl;
-                break;
-            }
+    // int と float の組み合わせ（intをfloatにキャストして比較）
+    MinClass<float> intFloatMin;
+    std::cout << "intとfloat型: " << intFloatMin.Min(static_cast<float>(4), 3.5f) << std::endl;
 
-            // その他のキーが押された場合、状態を更新
-            enemy.update();
-        }
-    }
+    // int と double の組み合わせ（intをdoubleにキャストして比較）
+    MinClass<double> intDoubleMin;
+    std::cout << "intとdouble型: " << intDoubleMin.Min(static_cast<double>(6), 5.8) << std::endl;
+
+    // float と double の組み合わせ（floatをdoubleにキャストして比較）
+    MinClass<double> floatDoubleMin;
+    std::cout << "floatとdouble型: " << floatDoubleMin.Min(static_cast<double>(2.4f), 3.5) << std::endl;
 
     return 0;
 }
