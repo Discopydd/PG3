@@ -1,39 +1,67 @@
 #include <iostream>
+#include <cmath>
+#define PI 3.14159
 
-// クラステンプレートの定義
-template <typename T>
-class MinClass {
+// 抽象基类
+class IShape {
 public:
-    // 2つの引数の小さい方を返すメンバ関数
-    T Min(T a, T b) {
-        return (a < b) ? a : b;
+   
+    virtual double size() const = 0;  // 面積を計算
+    virtual void draw() const = 0;    // 形状を表示
+
+    // 仮想デストラクタ
+    virtual ~IShape() = default;
+};
+
+// 派生クラス：Circle（円）
+class Circle : public IShape {
+private:
+    double radius;  // 半径
+
+public:
+    // コンストラクタ
+    Circle(double r) : radius(r) {}
+
+    // 面積を計算
+    double size() const override {
+        return PI * radius * radius;
+    }
+
+    // 円を描画（コンソールに表示）
+    void draw() const override {
+        std::cout << "円の描画: 半径 = " << radius << ", 面積 = " << size() << std::endl;
+    }
+};
+
+// 派生クラス：Rectangle（矩形）
+class Rectangle : public IShape {
+private:
+    double width;   // 幅
+    double height;  // 高さ
+
+public:
+    // コンストラクタ
+    Rectangle(double w, double h) : width(w), height(h) {}
+
+    // 面積を計算
+    double size() const override {
+        return width * height;
+    }
+
+    // 矩形を描画（コンソールに表示）
+    void draw() const override {
+        std::cout << "矩形の描画: 幅 = " << width << ", 高さ = " << height << ", 面積 = " << size() << std::endl;
     }
 };
 
 int main() {
-    // int型のインスタンス
-    MinClass<int> intMin;
-    std::cout << "int型: " << intMin.Min(3, 5) << std::endl;
+    // Circle と Rectangle のインスタンスを作成
+    Circle circle(5.0);
+    Rectangle rectangle(4.0, 6.0);
 
-    // float型のインスタンス
-    MinClass<float> floatMin;
-    std::cout << "float型: " << floatMin.Min(2.5f, 1.5f) << std::endl;
-
-    // double型のインスタンス
-    MinClass<double> doubleMin;
-    std::cout << "double型: " << doubleMin.Min(7.1, 3.9) << std::endl;
-
-    // int と float の組み合わせ（intをfloatにキャストして比較）
-    MinClass<float> intFloatMin;
-    std::cout << "intとfloat型: " << intFloatMin.Min(static_cast<float>(4), 3.5f) << std::endl;
-
-    // int と double の組み合わせ（intをdoubleにキャストして比較）
-    MinClass<double> intDoubleMin;
-    std::cout << "intとdouble型: " << intDoubleMin.Min(static_cast<double>(6), 5.8) << std::endl;
-
-    // float と double の組み合わせ（floatをdoubleにキャストして比較）
-    MinClass<double> floatDoubleMin;
-    std::cout << "floatとdouble型: " << floatDoubleMin.Min(static_cast<double>(2.4f), 3.5) << std::endl;
+    // それぞれの図形を描画
+    circle.draw();
+    rectangle.draw();
 
     return 0;
 }
